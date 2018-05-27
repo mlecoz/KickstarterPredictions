@@ -5,11 +5,11 @@ from sklearn import svm, preprocessing
 import numpy as np
 from sklearn.preprocessing import Imputer
 from sklearn.naive_bayes import GaussianNB
-from sklearn.naive_bayes import MultinomialNB
 from sklearn.naive_bayes import BernoulliNB
 from sklearn import tree
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn import feature_selection
 
 
 def load_data(file_name):
@@ -62,10 +62,10 @@ def process_catg_vars(data):
 # Trains the model:
 def train(features_only, dep_var_only):
     model = svm.SVC(random_state=10, kernel='rbf')
-    model = DecisionTreeClassifier()
-    model = RandomForestClassifier(random_state=10)
-    model = BernoulliNB()
-    # model = MultinomialNB() # can't use with negative data
+    # model = DecisionTreeClassifier()
+    # model = RandomForestClassifier(random_state=10)
+    # model = BernoulliNB()
+
 
     # Scales the data
     features_only = preprocessing.scale(features_only)
@@ -74,24 +74,32 @@ def train(features_only, dep_var_only):
                                                                                 test_size=0.2, random_state=10,
                                                                                 shuffle=True)
 
-    # Cs = [2000, 10000, 12000, 12200, 12250, 12300, 12400, 15000]
-    # Cs = [1, 10, 100, 1000, 10000, 100000]
-    # gammas = [0.0001, 0.001, 0.1, 1, 10, 100]
-    # param_grid = {'C': Cs, 'gamma': gammas}
-    # grid_search = GridSearchCV(estimator=model, param_grid=param_grid, cv=10, n_jobs=-1, verbose=2)
-    #
-    # grid_search.fit(features_train, target_train)
-    # print(grid_search.best_params_)
 
-    model.fit(features_train, target_train)
+    # Get mutual information:
+    scores = feature_selection.mutual_info_classif(features_train, target_train, random_state=10)
+
+    # Most important: Goal amount, then sub-category and duration,
+    # Least important: Country and currency
+    print(scores)
+
+    # Cs = [2000, 10000, 12000, 12200, 12250, 12300, 12400, 15000]
+    Cs = [1, 10, 100, 1000, 10000, 100000]
+    gammas = [0.0001, 0.001, 0.1, 1, 10, 100]
+    param_grid = {'C': Cs, 'gamma': gammas}
+    grid_search = GridSearchCV(estimator=model, param_grid=param_grid, cv=10, n_jobs=-1, verbose=2)
+    #
+    grid_search.fit(features_train, target_train)
+    print(grid_search.best_params_)
+
+    grid_search.fit(features_train, target_train)
     # No parameter tuning, accuracy: 0.8
 
     # best_params = ?
 
     # best_grid = grid_search.best_estimator_
-    target_pred = model.predict(features_test)
+    target_pred = grid_search.predict(features_test)
 
-    return target_pred, target_test, model
+    return target_pred, target_test, grid_search
 
 
 if __name__ == "__main__":
@@ -99,7 +107,7 @@ if __name__ == "__main__":
     train_data = load_data('train.csv')
 
     # Data for one category
-    train_data = train_data[train_data['main_category'] == 'Film & Video']
+    train_data = train_data[train_data['main_category'] == 'Dance']
 
     # Converts categorical variables
     train_data = process_catg_vars(train_data)
