@@ -88,31 +88,34 @@ def train(features_only, dep_var_only, model_name):
 
     # Most important: Goal amount, then sub-category and duration,
     # Least important: Country and currency
-    print(scores)
 
     # Cs = [2000, 10000, 12000, 12200, 12250, 12300, 12400, 15000]
 
-    n_estimators = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000] ## TODO
-    max_features = ['auto', 'sqrt'] ## TODO
-    param_grid = {'max_features': max_features, 'n_estimators': n_estimators} ## TODO
+    Cs = [1000, 1500, 2000, 2500]
+    gammas = [0.01, 0.1, 1]
+    param_grid = {'C': Cs, 'gamma': gammas}
+    model = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
+
+
+    # n_estimators = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000] ## TODO
+    # max_features = ['auto', 'sqrt'] ## TODO
+    # param_grid = {'max_features': max_features, 'n_estimators': n_estimators} ## TODO
 
     # Cs = [2000, 4000, 8000]
     # gammas = [0.01, 0.1, 1]
     # param_grid = {'C': Cs, 'gamma': gammas}
     grid_search = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
+
     #
-    grid_search.fit(features_train, target_train)
-    print(grid_search.best_params_)
+    model.fit(features_train, target_train)
+    print(model.best_params_)
 
-    grid_search.fit(features_train, target_train)
-    # No parameter tuning, accuracy: 0.8
-
-    # best_params = ?
+    # Best parameters for SVM, Dance: C: 2000, gamma: 0.1
 
     # best_grid = grid_search.best_estimator_
-    target_pred = grid_search.predict(features_test)
+    target_pred = model.predict(features_test)
 
-    return target_pred, target_test, grid_search
+    return target_pred, target_test, model
 
 
 if __name__ == "__main__":
@@ -120,7 +123,7 @@ if __name__ == "__main__":
     train_data = load_data('train.csv')
 
     # Data for one category
-    train_data = train_data[train_data['main_category'] == 'Dance']
+    train_data = train_data[train_data['main_category'] == 'Music']
 
     # Converts categorical variables
     train_data = process_catg_vars(train_data)
