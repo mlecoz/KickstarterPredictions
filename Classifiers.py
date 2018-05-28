@@ -91,8 +91,8 @@ def train(features_only, dep_var_only, model_name):
 
     # Cs = [2000, 10000, 12000, 12200, 12250, 12300, 12400, 15000]
 
-    Cs = [1000, 1500, 2000, 2500]
-    gammas = [0.01, 0.1, 1]
+    Cs = [0.1, 1, 10, 100, 200, 500, 1000]
+    gammas = [0.1, 1, 10, 100, 1000]
     param_grid = {'C': Cs, 'gamma': gammas}
     model = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
 
@@ -110,8 +110,6 @@ def train(features_only, dep_var_only, model_name):
     model.fit(features_train, target_train)
     print(model.best_params_)
 
-    # Best parameters for SVM, Dance: C: 2000, gamma: 0.1
-
     # best_grid = grid_search.best_estimator_
     target_pred = model.predict(features_test)
 
@@ -123,20 +121,21 @@ if __name__ == "__main__":
     train_data = load_data('train.csv')
 
     # Data for one category
-    train_data = train_data[train_data['main_category'] == 'Music']
+    train_data = train_data[train_data['main_category'] == 'Journalism']
 
     # Converts categorical variables
     train_data = process_catg_vars(train_data)
 
     # Sample the data
-    train_data = train_data.sample(n=2000, random_state=10)
+    train_data = train_data.sample(n=3500, random_state=10)
+    train_data = train_data.drop(columns=['main_category'])
 
     # Separates data into features and dependent variables
     dep_var = list(train_data['state'])
     features = train_data.drop(columns=['state']).as_matrix()
 
     # Train and test model:
-    pred, test, model = train(features, dep_var, "random_forest")
+    pred, test, model = train(features, dep_var, "svm")
     print("Model Accuracy: " + str(accuracy_score(test, pred)))
     print("Recall: " + str(recall_score(test, pred)))
     print("F1 score: " + str(f1_score(test, pred)))
