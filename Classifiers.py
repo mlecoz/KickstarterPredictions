@@ -92,31 +92,25 @@ def train(features_only, dep_var_only, model_name):
     # Cs = [2000, 10000, 12000, 12200, 12250, 12300, 12400, 15000]
 
     # SVM
-    Cs = [0.1, 1, 10, 100, 200, 500, 1000]
-    gammas = [0.1, 1, 10, 100, 1000]
-    param_grid = {'C': Cs, 'gamma': gammas}
-    model = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
+    # Cs = [0.1, 1, 10, 100, 200, 500, 1000]
+    # gammas = [0.1, 1, 10, 100, 1000]
+    # param_grid = {'C': Cs, 'gamma': gammas}
+    # model = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
 
 
     # Random Forest
-    n_estimators = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000] ## TODO
-    max_features = ['auto', 'sqrt'] ## TODO
-    param_grid = {'max_features': max_features, 'n_estimators': n_estimators} ## TODO
-
-    # Something else
-    # Cs = [2000, 4000, 8000]
-    # gammas = [0.01, 0.1, 1]
-    # param_grid = {'C': Cs, 'gamma': gammas}
-
-    model = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
+    # n_estimators = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000] ## TODO
+    # max_features = ['auto', 'sqrt'] ## TODO
+    # param_grid = {'max_features': max_features, 'n_estimators': n_estimators} ## TODO
+    # model = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
 
     # For Everything (logistic regression solely uses this)
     model.fit(features_train, target_train)
 
 
-    print(model.best_params_)
+    # print(model.best_params_)
 
-    # best_grid = grid_search.best_estimator_
+    # best_grid = model.best_estimator_
     target_pred = model.predict(features_test)
 
     return target_pred, target_test, model
@@ -127,15 +121,13 @@ if __name__ == "__main__":
     train_data = load_data('train.csv')
 
     # Data for one category
-    train_data = train_data[train_data['main_category'] == 'Journalism']
+    # train_data = train_data[train_data['main_category'] == 'Music']
 
     # Converts categorical variables
     train_data = process_catg_vars(train_data)
-    train_data = train_data.drop(columns=['main_category'])
 
     # Sample the data
-
-    train_data = train_data.sample(n=5000, random_state=10)
+    train_data = train_data.sample(n=10000, random_state=10)
     train_data = train_data.drop(columns=['main_category'])
 
     # Separates data into features and dependent variables
@@ -143,7 +135,7 @@ if __name__ == "__main__":
     features = train_data.drop(columns=['state']).as_matrix()
 
     # Train and test model:
-    pred, test, model = train(features, dep_var, "svm")
+    pred, test, model = train(features, dep_var, "logistic_reg")
     print("Model Accuracy: " + str(accuracy_score(test, pred)))
     print("Recall: " + str(recall_score(test, pred)))
     print("F1 score: " + str(f1_score(test, pred)))
