@@ -10,6 +10,7 @@ from sklearn import tree
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import feature_selection
+from sklearn import linear_model
 
 
 def load_data(file_name):
@@ -60,11 +61,18 @@ def process_catg_vars(data):
 
 
 # Trains the model:
-def train(features_only, dep_var_only):
-    model = svm.SVC(random_state=10, kernel='rbf')
-    # model = DecisionTreeClassifier()
-    # model = RandomForestClassifier(random_state=10)
-    # model = BernoulliNB()
+def train(features_only, dep_var_only, model_name):
+
+    if model_name == "svm":
+        model = svm.SVC(random_state=10, kernel='rbf')
+    elif model_name == "decision_tree":
+        model = DecisionTreeClassifier()
+    elif model_name == "random_forest":
+        model = RandomForestClassifier(random_state=10)
+    elif model_name == "bernoulli":
+        model = BernoulliNB()
+    elif model_name == "linear":
+        model = linear_model.LinearRegression()
 
 
     # Scales the data
@@ -82,15 +90,25 @@ def train(features_only, dep_var_only):
     # Least important: Country and currency
 
     # Cs = [2000, 10000, 12000, 12200, 12250, 12300, 12400, 15000]
+
     Cs = [1000, 1500, 2000, 2500]
     gammas = [0.01, 0.1, 1]
     param_grid = {'C': Cs, 'gamma': gammas}
     model = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
+
+
+    # n_estimators = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000] ## TODO
+    # max_features = ['auto', 'sqrt'] ## TODO
+    # param_grid = {'max_features': max_features, 'n_estimators': n_estimators} ## TODO
+
+    # Cs = [2000, 4000, 8000]
+    # gammas = [0.01, 0.1, 1]
+    # param_grid = {'C': Cs, 'gamma': gammas}
+    grid_search = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
+
     #
     model.fit(features_train, target_train)
     print(model.best_params_)
-
-    # No parameter tuning, accuracy: 0.8
 
     # Best parameters for SVM, Dance: C: 2000, gamma: 0.1
 
@@ -118,7 +136,7 @@ if __name__ == "__main__":
     features = train_data.drop(columns=['state']).as_matrix()
 
     # Train and test model:
-    pred, test, model = train(features, dep_var)
+    pred, test, model = train(features, dep_var, "random_forest")
     print("Model Accuracy: " + str(accuracy_score(test, pred)))
     print("Recall: " + str(recall_score(test, pred)))
     print("F1 score: " + str(f1_score(test, pred)))
