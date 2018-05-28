@@ -71,8 +71,8 @@ def train(features_only, dep_var_only, model_name):
         model = RandomForestClassifier(random_state=10)
     elif model_name == "bernoulli":
         model = BernoulliNB()
-    elif model_name == "linear":
-        model = linear_model.LinearRegression()
+    elif model_name == "logistic_reg":
+        model = linear_model.LogisticRegressionCV(Cs=10)
 
 
     # Scales the data
@@ -126,14 +126,14 @@ if __name__ == "__main__":
     train_data = process_catg_vars(train_data)
 
     # Sample the data
-    train_data = train_data.sample(n=2000, random_state=10)
+    train_data = train_data.sample(n=5000, random_state=10)
 
     # Separates data into features and dependent variables
     dep_var = list(train_data['state'])
     features = train_data.drop(columns=['state']).as_matrix()
 
     # Train and test model:
-    pred, test, model = train(features, dep_var, "random_forest")
+    pred, test, model = train(features, dep_var, "logistic_reg")
     print("Model Accuracy: " + str(accuracy_score(test, pred)))
     print("Recall: " + str(recall_score(test, pred)))
     print("F1 score: " + str(f1_score(test, pred)))
