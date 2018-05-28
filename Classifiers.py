@@ -71,8 +71,8 @@ def train(features_only, dep_var_only, model_name):
         model = RandomForestClassifier(random_state=10)
     elif model_name == "bernoulli":
         model = BernoulliNB()
-    elif model_name == "linear":
-        model = linear_model.LinearRegression()
+    elif model_name == "logistic_reg":
+        model = linear_model.LogisticRegressionCV(Cs=100)
 
 
     # Scales the data
@@ -91,23 +91,29 @@ def train(features_only, dep_var_only, model_name):
 
     # Cs = [2000, 10000, 12000, 12200, 12250, 12300, 12400, 15000]
 
+    # SVM
     Cs = [0.1, 1, 10, 100, 200, 500, 1000]
     gammas = [0.1, 1, 10, 100, 1000]
     param_grid = {'C': Cs, 'gamma': gammas}
     model = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
 
 
-    # n_estimators = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000] ## TODO
-    # max_features = ['auto', 'sqrt'] ## TODO
-    # param_grid = {'max_features': max_features, 'n_estimators': n_estimators} ## TODO
+    # Random Forest
+    n_estimators = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000] ## TODO
+    max_features = ['auto', 'sqrt'] ## TODO
+    param_grid = {'max_features': max_features, 'n_estimators': n_estimators} ## TODO
 
+    # Something else
     # Cs = [2000, 4000, 8000]
     # gammas = [0.01, 0.1, 1]
     # param_grid = {'C': Cs, 'gamma': gammas}
-    grid_search = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
 
-    #
+    model = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
+
+    # For Everything (logistic regression solely uses this)
     model.fit(features_train, target_train)
+
+
     print(model.best_params_)
 
     # best_grid = grid_search.best_estimator_
@@ -125,9 +131,11 @@ if __name__ == "__main__":
 
     # Converts categorical variables
     train_data = process_catg_vars(train_data)
+    train_data = train_data.drop(columns=['main_category'])
 
     # Sample the data
-    train_data = train_data.sample(n=3500, random_state=10)
+
+    train_data = train_data.sample(n=5000, random_state=10)
     train_data = train_data.drop(columns=['main_category'])
 
     # Separates data into features and dependent variables
