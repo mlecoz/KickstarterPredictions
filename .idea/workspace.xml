@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="50f9b076-5acc-4e23-80d1-1933b2cfced1" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.ipynb_checkpoints/Project-checkpoint.ipynb" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/Project-checkpoint.ipynb" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Project.ipynb" afterPath="$PROJECT_DIR$/Project.ipynb" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kickstarter_data_cleaned.csv" afterPath="$PROJECT_DIR$/kickstarter_data_cleaned.csv" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
