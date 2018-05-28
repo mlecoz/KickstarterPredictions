@@ -91,9 +91,14 @@ def train(features_only, dep_var_only, model_name):
     print(scores)
 
     # Cs = [2000, 10000, 12000, 12200, 12250, 12300, 12400, 15000]
+
     n_estimators = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000] ## TODO
     max_features = ['auto', 'sqrt'] ## TODO
     param_grid = {'max_features': max_features, 'n_estimators': n_estimators} ## TODO
+
+    # Cs = [2000, 4000, 8000]
+    # gammas = [0.01, 0.1, 1]
+    # param_grid = {'C': Cs, 'gamma': gammas}
     grid_search = GridSearchCV(estimator=model, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2)
     #
     grid_search.fit(features_train, target_train)
@@ -119,6 +124,9 @@ if __name__ == "__main__":
 
     # Converts categorical variables
     train_data = process_catg_vars(train_data)
+
+    # Sample the data
+    train_data = train_data.sample(n=2000, random_state=10)
 
     # Separates data into features and dependent variables
     dep_var = list(train_data['state'])
